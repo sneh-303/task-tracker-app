@@ -13,7 +13,12 @@ const nlpRoutes = require("./src/routes/nlpRoutes");
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: ['https://task-tracker-app-main.vercel.app'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Base route
