@@ -41,5 +41,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ Named export for hook
+
 export const useAuth = () => useContext(AuthContext);

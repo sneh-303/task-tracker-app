@@ -23,14 +23,14 @@ model Task {
   status      String    @default("Pending")
   userId      Int
   user        User      @relation(fields: [userId], references: [id])
-  timeLogs    TimeLog[] // ✅ No onDelete here!
+  timeLogs    TimeLog[] // No onDelete here!
   createdAt   DateTime  @default(now())
 }
 
 model TimeLog {
   id        Int      @id @default(autoincrement())
   taskId    Int
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade) // ✅ Only here
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   startTime DateTime @default(now())
   endTime   DateTime?
 }
