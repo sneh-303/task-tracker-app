@@ -16,30 +16,25 @@ const prisma = new PrismaClient();
 // app.use(cors());
 const allowedOrigins = [
   'https://task-tracker-app-main.vercel.app',
-  'http://localhost:5173',    // frontend dev
+  'http://localhost:5173',          // dev
   'http://127.0.0.1:5173'
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // allow requests with no origin (like curl or some server-to-server requests)
-    if (!origin) return callback(null, true);
-
-    // allow exact matches
+    if (!origin) return callback(null, true);   
     if (allowedOrigins.includes(origin)) return callback(null, true);
-
-    // allow any Vercel preview domain (optional)
-    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
-
-    // otherwise block
-    return callback(new Error('Not allowed by CORS'), false);
+    if (/\.vercel\.app$/.test(origin)) return callback(null, true); 
+    return callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
-  credentials: true, // include if you send cookies / credentials
-  optionsSuccessStatus: 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204,
 };
 
-app.options("*", cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));   
 app.use(express.json());
 
 // Base route
