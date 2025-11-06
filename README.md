@@ -40,7 +40,7 @@ Built using **React, Node.js, Express, MySQL (via Prisma ORM)**, and **Google’
 
 ### 🧩 Clone the Repository
 ```bash
-git clone https://github.com/<your-username/taskflow.git
+[git clone https://github.com/<your-username/taskflow.git](https://github.com/sneh-303/task-tracker-app.git)
 cd taskflow
 ```
 
