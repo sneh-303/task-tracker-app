@@ -15,7 +15,7 @@ model task {
   createdAt   DateTime  @default(now())
   description String?
   user        user      @relation(fields: [userId], references: [id], map: "Task_userId_fkey")
-  timelogs     timelog[]
+  timelogs    timelog[]
 
   @@index([userId], map: "Task_userId_fkey")
 }
