@@ -15,8 +15,11 @@ const prisma = new PrismaClient();
 
 // app.use(cors());
 app.use(cors({
-  origin: ["https://task-tracker-app-main.vercel.app", "https://task-tracker-app-main-ghd225vkq-sneh-303s-projects.vercel.app" ], 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ["https://task-tracker-app-main.vercel.app", "https://task-tracker-app-main-ghd225vkq-sneh-303s-projects.vercel.app",
+    'http://localhost:5173',    
+  'http://127.0.0.1:5173'
+   ], 
+  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
   credentials: true
 }));
 app.options("*", cors());
