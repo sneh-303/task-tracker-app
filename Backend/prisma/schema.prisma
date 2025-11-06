@@ -7,30 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  tasks     Task[]
-  createdAt DateTime @default(now())
-}
-
-model Task {
+model task {
   id          Int       @id @default(autoincrement())
   title       String
-  description String?
   status      String    @default("Pending")
   userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  timeLogs    TimeLog[] // No onDelete here!
   createdAt   DateTime  @default(now())
+  description String?
+  user        user      @relation(fields: [userId], references: [id], map: "Task_userId_fkey")
+  timelog     timelog[]
+
+  @@index([userId], map: "Task_userId_fkey")
 }
 
-model TimeLog {
-  id        Int      @id @default(autoincrement())
+model timelog {
+  id        Int       @id @default(autoincrement())
   taskId    Int
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  startTime DateTime @default(now())
+  startTime DateTime  @default(now())
   endTime   DateTime?
+  task      task      @relation(fields: [taskId], references: [id], onDelete: Cascade, map: "TimeLog_taskId_fkey")
+
+  @@index([taskId], map: "TimeLog_taskId_fkey")
+}
+
+model user {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique(map: "User_email_key")
+  password  String
+  createdAt DateTime @default(now())
+  task      task[]
 }
