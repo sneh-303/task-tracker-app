@@ -132,7 +132,7 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-✅ Backend runs at → [http://localhost:8080]
+✅ Backend runs at → [http://localhost:8080](http://localhost:8080)
 
 ---
 
@@ -181,7 +181,7 @@ plugins: [],
 npm run dev
 ```
 
-✅ Frontend runs at → [http://localhost:5173]
+✅ Frontend runs at → [http://localhost:5173](http://localhost:5173)
 
 ---
 
@@ -214,7 +214,7 @@ export const generateTaskSuggestion = async (req, res) => {
     const { input } = req.body;
     const prompt = `Suggest smart subtasks for: ${input}`;
     const result = await openai.responses.create({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       input: prompt,
     });
     res.json({ suggestion: result.output_text });
@@ -240,6 +240,6 @@ cd frontend
 npm run dev
 ```
 
-Then open → [http://localhost:5173]
+Then open → [http://localhost:5173](http://localhost:5173)
 
 ---
