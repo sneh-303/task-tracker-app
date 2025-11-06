@@ -5,12 +5,14 @@ const getTodaySummary = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get start and end of today
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    // Get start and end of today's date
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
 
-    // Fetch all tasks for the user with today's time logs
+    // Fetch all tasks for this user with today's time logs
     const tasks = await prisma.task.findMany({
       where: { userId },
       include: {
@@ -36,13 +38,13 @@ const getTodaySummary = async (req, res) => {
     const totalHours = Math.floor(totalMinutes / 60);
     const remainingMinutes = totalMinutes % 60;
 
-    // Count task status
+    // Count task statuses
     const completed = tasks.filter((t) => t.status === "Completed").length;
     const pending = tasks.filter((t) => t.status === "Pending").length;
     const inProgress = tasks.filter((t) => t.status === "In Progress").length;
 
-    res.json({
-      date: new Date().toLocaleDateString(),
+    res.status(200).json({
+      date: now.toLocaleDateString(),
       summary: {
         totalTasks: tasks.length,
         totalTime: `${totalHours}h ${remainingMinutes}m`,

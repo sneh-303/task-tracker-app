@@ -7,34 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model task {
-  id          Int       @id @default(autoincrement())
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique(map: "User_email_key")
+  password  String
+  createdAt DateTime  @default(now())
+  tasks     Task[]    @relation("UserTasks")
+
+  @@map("user") // maps to SQL table 'user'
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
   title       String
-  status      String    @default("Pending")
+  status      String     @default("Pending")
   userId      Int
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime   @default(now())
   description String?
-  user        user      @relation(fields: [userId], references: [id], map: "Task_userId_fkey")
-  timelogs    timelog[]
+  user        User       @relation("UserTasks", fields: [userId], references: [id], map: "Task_userId_fkey")
+  timeLogs    TimeLog[]  @relation("TaskLogs") // ✅ plural, matches controllers
 
   @@index([userId], map: "Task_userId_fkey")
+  @@map("task") // maps to SQL table 'task'
 }
 
-model timelog {
-  id        Int       @id @default(autoincrement())
+model TimeLog {
+  id        Int      @id @default(autoincrement())
   taskId    Int
-  startTime DateTime  @default(now())
+  startTime DateTime @default(now())
   endTime   DateTime?
-  task      task      @relation(fields: [taskId], references: [id], onDelete: Cascade, map: "TimeLog_taskId_fkey")
+  task      Task     @relation("TaskLogs", fields: [taskId], references: [id], onDelete: Cascade, map: "TimeLog_taskId_fkey")
 
   @@index([taskId], map: "TimeLog_taskId_fkey")
-}
-
-model user {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique(map: "User_email_key")
-  password  String
-  createdAt DateTime @default(now())
-  task      task[]
+  @@map("timelog") // maps to SQL table 'timelog'
 }
