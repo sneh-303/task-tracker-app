@@ -3,6 +3,15 @@
 A modern full-stack productivity app that helps users **create, manage, and track tasks** efficiently — with **real-time timers**, **JWT authentication**, and **Gemini AI integration** for task suggestions.
 
 Built using **React, Node.js, Express, MySQL (via Prisma ORM)**, and **Google’s Gemini API**.
+---
+🌐 Live Demo
+
+🔗 Frontend (Vercel):
+👉 https://task-tracker-app-green-beta.vercel.app/
+
+🔗 Backend (Render):
+👉 https://task-tracker-app-rp60.onrender.com
+---
 
 ---
 
