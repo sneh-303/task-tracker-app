@@ -16,7 +16,7 @@ const getTodaySummary = async (req, res) => {
     const tasks = await prisma.task.findMany({
       where: { userId },
       include: {
-        timeLogs: {
+        timelogs: {
           where: {
             startTime: { gte: startOfDay, lte: endOfDay },
           },
@@ -27,7 +27,7 @@ const getTodaySummary = async (req, res) => {
     // Calculate total time spent today
     let totalMs = 0;
     tasks.forEach((task) => {
-      task.timeLogs.forEach((log) => {
+      task.timelogs.forEach((log) => {
         if (log.endTime) {
           totalMs += new Date(log.endTime) - new Date(log.startTime);
         }
