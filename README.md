@@ -7,7 +7,7 @@ Built using **React, Node.js, Express, MySQL (via Prisma ORM)**, and **Google’
 🌐 Live Demo
 
 🔗 Frontend (Vercel):
-👉 https://task-tracker-app-green-beta.vercel.app/
+👉 https://task-tracker-bzn41tagx-sneh-303s-projects.vercel.app/
 
 🔗 Backend (Render):
 👉 https://task-tracker-app-rp60.onrender.com
