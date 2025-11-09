@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       console.log("User logged out manually.");
     }
 
-    window.location.replace("/login");
+    navigate("/login");
   };
 
   // Client-side auto logout when token expires (timer-based)
