@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -13,20 +14,19 @@ const nlpRoutes = require("./src/routes/nlpRoutes");
 const app = express();
 const prisma = new PrismaClient();
 
-// app.use(cors());
 const allowedOrigins = [
   'https://task-tracker-app-main.vercel.app',
-  'https://task-tracker-bzn41tagx-sneh-303s-projects.vercel.app/',
-  'http://localhost:5173',          // dev
-  'http://127.0.0.1:5173'
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true);   
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    if (/\.vercel\.app$/.test(origin)) return callback(null, true); 
-    return callback(new Error('Not allowed by CORS'));
+    if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -35,26 +35,24 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));   
 app.use(express.json());
 
-// Base route
 app.get("/", (req, res) => {
-  res.send("Task Tracker API Running ");
+  res.status(200).json({ message: "Task Tracker API Running" });
 });
 
-// API route
 app.use("/api/auth", authRoutes);
-
-// task route
 app.use("/api/tasks", taskRoutes);
-
-// timelogroute
 app.use("/api/timelog", timeLogRoutes);
 app.use("/api/summary", summaryRoutes);
-// nlp route
 app.use("/api/tasks/nlp", nlpRoutes);
-// Server listen
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err.message || err);
+  res.status(500).json({ message: "Internal server error" });
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

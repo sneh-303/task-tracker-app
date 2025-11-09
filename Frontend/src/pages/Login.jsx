@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
@@ -10,20 +9,28 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Send credentials to backend
       const res = await api.post("/auth/login", { email, password });
-      login({ email, token: res.data.token });
-      toast.success("Welcome back 👋");
-      navigate("/");
+      const { token, user } = res.data;
+
+      // Call context login function (handles localStorage + redirect)
+      login({ id: user.id, name: user.name, email: user.email, token });
+
+      toast.success(`Welcome back, ${user.name || "User"}`);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed ❌");
+      const errorMsg =
+        err.response?.data?.message ||
+        (err.response?.status === 500
+          ? "Server error, please try again later ❌"
+          : "Login failed ❌");
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

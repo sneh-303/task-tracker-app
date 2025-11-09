@@ -1,7 +1,6 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-
 import { toast } from "sonner";
 
 export default function EditTask({ task, onClose, refetch }) {
@@ -9,28 +8,37 @@ export default function EditTask({ task, onClose, refetch }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
   const [loading, setLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
 
-  // Update task
+  // Update + Generate New AI Suggestion
   const handleUpdate = async () => {
-    if (!title.trim()) {
-      toast.error("Task title cannot be empty!");
-      return;
-    }
-
+    if (!title.trim()) return toast.error("Task title cannot be empty!");
     setLoading(true);
+    setSuggestion(null);
+
     try {
+      // Step 1: Update task
       await api.put(
         `/tasks/${task.id}`,
         { title, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toast.success("✅ Task updated successfully!");
+      // Step 2: Generate new AI suggestion based on latest content
+      const res = await api.post(
+        "/tasks/nlp",
+        { input: `${title} ${description}` },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSuggestion(res.data);
+      toast.success("Task updated ✅ New AI suggestion generated ✨");
+
+      // Step 3: Refresh list
       refetch();
-      onClose();
     } catch (err) {
       console.error("Error updating task:", err);
-      toast.error("❌ Failed to update task. Try again!");
+      toast.error("❌ Failed to update task or generate suggestion");
     } finally {
       setLoading(false);
     }
@@ -38,25 +46,25 @@ export default function EditTask({ task, onClose, refetch }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 animate-fadeIn">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-96 transform transition-all scale-100">
+      <div className="bg-white rounded-xl shadow-xl p-6 w-96">
         <h2 className="text-lg font-semibold mb-3 text-center text-gray-800">
           ✏️ Edit Task
         </h2>
 
-        {/* Title */}
+        {/* Title Input */}
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter task title"
+          placeholder="Task title"
           className="w-full border rounded-md p-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
         />
 
-        {/* Description */}
+        {/* Description Input */}
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Add task description..."
+          placeholder="Task description..."
           className="w-full border rounded-md p-2 h-24 focus:ring-2 focus:ring-blue-400 outline-none"
         />
 
@@ -70,8 +78,18 @@ export default function EditTask({ task, onClose, refetch }) {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {loading ? "Updating..." : "Save Changes"}
+          {loading ? "Updating..." : "💾 Save & Regenerate AI Suggestion"}
         </button>
+
+        {/* AI Suggestion Box */}
+        {suggestion && (
+          <div className="mt-4 bg-gray-50 p-3 rounded-md border border-gray-200 shadow-sm">
+            <h3 className="font-semibold text-gray-800">{suggestion.title}</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              {suggestion.description}
+            </p>
+          </div>
+        )}
 
         {/* Cancel Button */}
         <button

@@ -1,6 +1,3 @@
-
-
-
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -11,7 +8,7 @@ import Button from "./Button";
 export default function TaskCard({ task, refetch }) {
   const { token } = useAuth();
 
-  // 🧠 Defensive: Skip rendering if invalid task
+  // Skip rendering if invalid task
   if (!task || typeof task !== "object" || !task.id) {
     console.warn("⚠️ Skipping invalid task:", task);
     return null;
@@ -22,7 +19,7 @@ export default function TaskCard({ task, refetch }) {
   const [intervalId, setIntervalId] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
 
-  // 🕒 Fetch total time on mount
+  // Fetch total time on mount
   useEffect(() => {
     const fetchTotal = async () => {
       try {
@@ -50,7 +47,7 @@ export default function TaskCard({ task, refetch }) {
     return () => clearInterval(intervalId);
   }, [task.id, token]);
 
-  // ⏱ Format time display
+  // Format time display
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -60,7 +57,7 @@ export default function TaskCard({ task, refetch }) {
       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // ▶ Start Timer
+  // Start Timer
   const handleStart = async () => {
     try {
       await api.post(`/timelog/${task.id}/start`, {}, {
@@ -75,22 +72,59 @@ export default function TaskCard({ task, refetch }) {
     }
   };
 
-  // ⏹ Stop Timer
+  // View Logs
+  const handleViewLogs = async () => {
+    try {
+      const res = await api.get(`/timelog/${task.id}/logs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const logs = res.data;
+
+      if (!logs.length) return toast.info("No logs yet for this task.");
+
+      // Show all logs in toast
+      toast.info(
+        logs
+          .map(
+            (log) =>
+              `🕒 ${new Date(log.startTime).toLocaleTimeString()} → ${
+                log.endTime
+                  ? new Date(log.endTime).toLocaleTimeString()
+                  : "Running..."
+              }`
+          )
+          .join("\n")
+      );
+    } catch {
+      toast.error("Failed to load logs ❌");
+    }
+  };
+
+
   const handleStop = async () => {
     try {
       await api.post(`/timelog/${task.id}/stop`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       clearInterval(intervalId);
       setIsRunning(false);
       refetch();
-      toast.success("Timer stopped ✅");
+
+      
+      toast.success("Timer stopped ✅", {
+        duration: 8000,
+        action: {
+          label: "View Logs",
+          onClick: () => handleViewLogs(),
+        },
+      });
     } catch {
       toast.error("Failed to stop timer ❌");
     }
   };
 
-  // 🗑 Delete Task
+  // Delete Task
   const handleDelete = async () => {
     if (!confirm(`🗑️ Delete "${task.title}"?`)) return;
     try {
@@ -104,7 +138,7 @@ export default function TaskCard({ task, refetch }) {
     }
   };
 
-  // ⚙ Update Status
+  // Update Status
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     const currentStatus = task.status;
@@ -129,32 +163,6 @@ export default function TaskCard({ task, refetch }) {
       refetch();
     } catch {
       toast.error("Failed to update status ❌");
-    }
-  };
-
-  // 🔍 View Logs
-  const handleViewLogs = async () => {
-    try {
-      const res = await api.get(`/timelog/${task.id}/logs`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const logs = res.data;
-
-      if (!logs.length) return toast.info("No logs yet for this task.");
-      toast.info(
-        logs
-          .map(
-            (log) =>
-              `🕒 ${new Date(log.startTime).toLocaleTimeString()} → ${
-                log.endTime
-                  ? new Date(log.endTime).toLocaleTimeString()
-                  : "Running..."
-              }`
-          )
-          .join("\n")
-      );
-    } catch {
-      toast.error("Failed to load logs ❌");
     }
   };
 
@@ -205,24 +213,41 @@ export default function TaskCard({ task, refetch }) {
             </Button>
           )}
 
-          <Button onClick={handleViewLogs} variant="gray" className="mt-2 text-xs w-full">
+          {/* View Logs Button */}
+          <Button
+            onClick={handleViewLogs}
+            variant="gray"
+            className="mt-2 text-xs w-full"
+          >
             View Logs
           </Button>
 
-          <Button onClick={() => setShowEdit(true)} variant="primary" className="mt-2 text-xs w-full">
+          <Button
+            onClick={() => setShowEdit(true)}
+            variant="primary"
+            className="mt-2 text-xs w-full"
+          >
             ✏️ Edit
           </Button>
 
-          <Button onClick={handleDelete} variant="danger" className="mt-2 text-xs w-full">
+          <Button
+            onClick={handleDelete}
+            variant="danger"
+            className="mt-2 text-xs w-full"
+          >
             🗑️ Delete
           </Button>
         </div>
       </div>
 
+      {/*Edit Modal */}
       {showEdit && (
-        <EditTask task={task} onClose={() => setShowEdit(false)} refetch={refetch} />
+        <EditTask
+          task={task}
+          onClose={() => setShowEdit(false)}
+          refetch={refetch}
+        />
       )}
     </div>
   );
 }
-// 
