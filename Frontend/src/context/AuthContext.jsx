@@ -1,5 +1,4 @@
-
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { toast } from "sonner";
@@ -13,6 +12,9 @@ export const AuthProvider = ({ children }) => {
     JSON.parse(localStorage.getItem("user")) || null
   );
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+
+  // useRef to prevent duplicate logout
+  const isLoggingOut = useRef(false);
 
   // Intercept API responses for auto logout if token gets expired
   useEffect(() => {
@@ -44,13 +46,13 @@ export const AuthProvider = ({ children }) => {
     else localStorage.removeItem("token");
   }, [token]);
 
-  // Keep user synced with localStorage
+
   useEffect(() => {
     if (user) localStorage.setItem("user", JSON.stringify(user));
     else localStorage.removeItem("user");
   }, [user]);
 
-  // Login
+  
   const login = (data) => {
     const newUser = { id: data.id, email: data.email, name: data.name };
     setUser(newUser);
@@ -58,10 +60,10 @@ export const AuthProvider = ({ children }) => {
     navigate("/dashboard");
   };
 
-  // Logout manual or automatic
+  
   const logout = (auto = false) => {
-    if (isLoggingOut) return;
-    isLoggingOut = true;
+    if (isLoggingOut.current) return; // prevent duplicate calls
+    isLoggingOut.current = true;
 
     setUser(null);
     setToken("");
@@ -76,18 +78,18 @@ export const AuthProvider = ({ children }) => {
       toast.success("Logged out successfully!");
     }
 
-    navigate("/login");
-
-  
-    setTimeout(() => (isLoggingOut = false), 2000);
+    
+    setTimeout(() => {
+      navigate("/login");
+      isLoggingOut.current = false; 
+    }, 800);
   };
 
-  // Client-side auto logout when token expires (timer-based)
+  // Client-side auto logout when token expires
   useEffect(() => {
     if (!token) return;
 
     try {
-      // Decoding JWT payload
       const payload = JSON.parse(atob(token.split(".")[1]));
       const expiryTime = payload.exp * 1000;
       const remainingTime = expiryTime - Date.now();
