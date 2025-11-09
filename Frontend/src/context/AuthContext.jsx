@@ -58,22 +58,28 @@ export const AuthProvider = ({ children }) => {
     navigate("/dashboard");
   };
 
-  // Logout (manual or automatic)
+  // Logout manual or automatic
   const logout = (auto = false) => {
+    if (isLoggingOut) return;
+    isLoggingOut = true;
+
     setUser(null);
     setToken("");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     if (auto) {
-      toast.error("Session expired. Please log in again.");
       console.log("Auto logout triggered due to expired token.");
+      toast.error("Session expired. Please log in again.");
     } else {
-      toast.success("Logged out successfully!");
       console.log("User logged out manually.");
+      toast.success("Logged out successfully!");
     }
 
     navigate("/login");
+
+  
+    setTimeout(() => (isLoggingOut = false), 2000);
   };
 
   // Client-side auto logout when token expires (timer-based)
